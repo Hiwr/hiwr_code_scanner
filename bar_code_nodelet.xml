@@ -1,0 +1,7 @@
+<library path="lib/libhyve_bar_code_nodelet">
+  <class name="bar_code_nodelet/Bar_code_node" type="bar_code_nodelet::Bar_code_node" base_class_type="nodelet::Nodelet">
+    <description>
+      Implementing bar code reader nodelet
+    </description>
+  </class>
+</library>
