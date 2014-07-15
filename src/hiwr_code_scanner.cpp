@@ -17,29 +17,29 @@
 * 
 ***********************************************************************/
 
-#include "bar_code.h"
+#include "hiwr_code_scanner.h"
 
 using namespace zbar;
 
-namespace bar_code_nodelet
+namespace hiwr_code_scanner
 {
 
-Bar_code_node::Bar_code_node():
-    spinningState(true), //Wait state
-    debug_name("[Nodelet Bar_Code]"),
-    video_stream_name("output_video"),
-    symbol_type(ZBAR_NONE),
-    new_data_available(false),
-    isSubscribed(false),
-    out_msg(new std_msgs::String)
+HiwrCodeScannerNodelet::HiwrCodeScannerNodelet():
+    spinning_state_(true), //Wait state
+    debug_name_("[Nodelet hiwr_code_scanner]"),
+    video_stream_name_("output_video"),
+    symbol_type_(ZBAR_NONE),
+    new_data_available_(false),
+    is_subscribed_(false),
+    out_msg_(new std_msgs::String)
 {}
 
-void Bar_code_node::onInit(){
+void HiwrCodeScannerNodelet::onInit(){
     ros::NodeHandle& public_nh = getNodeHandle();
     ros::NodeHandle& private_nh = getMTPrivateNodeHandle();
     it_ = new image_transport::ImageTransport(public_nh);
 
-    if(!private_nh.getParam("video_stream", video_stream_name)){
+    if(!private_nh.getParam("video_stream", video_stream_name_)){
         print_error("unable to retrieve [video_stream] param, please check corresponding launch file");
         return;
     }
@@ -48,36 +48,35 @@ void Bar_code_node::onInit(){
     if(!private_nh.getParam("symbol_type", symbol_value)){
         print_info("unable to retrieve [symbol_type] param, please check corresponding launch file");
     }else{
-        symbol_type = static_cast<zbar_symbol_type_t>(symbol_value);
+        symbol_type_ = static_cast<zbar_symbol_type_t>(symbol_value);
         print_info("setting symbol_type");
     }
-    pub = private_nh.advertise<std_msgs::String>("output_bar_code", 1);
-    image_sub_ = it_->subscribe(video_stream_name.c_str(), 1,&Bar_code_node::callback_img, this);
-    isSubscribed = true;
+    pub_ = private_nh.advertise<std_msgs::String>("code", 1);
+    image_sub_ = it_->subscribe(video_stream_name_.c_str(), 1,&HiwrCodeScannerNodelet::callback_img, this);
+    is_subscribed_ = true;
 
     configureSpinning(private_nh);
 
     //Main loop thread
-    loop_thread = std::thread(&Bar_code_node::loop , this);
+    loop_thread_ = std::thread(&HiwrCodeScannerNodelet::loop , this);
 
     print_info("Initialization OK");
 }
 
-void Bar_code_node::callback_img(const sensor_msgs::ImageConstPtr& msg){
+void HiwrCodeScannerNodelet::callback_img(const sensor_msgs::ImageConstPtr& msg){
     try
     {
-        //FIXME We need a MONO input image, if not we need to convert it to Grayscale
-        cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::MONO8);
+        cv_ptr_ = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::MONO8);
         ImageScanner scanner;
 
         //configure the reader
         scanner.set_config(ZBAR_NONE, ZBAR_CFG_ENABLE, 0); //Set flags off
-        scanner.set_config(symbol_type, ZBAR_CFG_ENABLE, 1); //Set flags we need on
+        scanner.set_config(symbol_type_, ZBAR_CFG_ENABLE, 1); //Set flags we need on
 
         //obtain image data
-        int width =cv_ptr->image.cols;
-        int height =cv_ptr->image.rows;
-        uchar *raw = (uchar *)cv_ptr->image.data;
+        int width =cv_ptr_->image.cols;
+        int height =cv_ptr_->image.rows;
+        uchar *raw = (uchar *)cv_ptr_->image.data;
 
         // wrap image data
         Image image(width, height, "Y800", raw, width * height);
@@ -93,8 +92,8 @@ void Bar_code_node::callback_img(const sensor_msgs::ImageConstPtr& msg){
                 ++symbol) {
                 // do something useful with results
                 //print_info(symbol->get_data().c_str());
-                out_msg->data = symbol->get_data();
-                new_data_available = true;
+                out_msg_->data = symbol->get_data();
+                new_data_available_ = true;
             }
         }
 
@@ -110,22 +109,21 @@ void Bar_code_node::callback_img(const sensor_msgs::ImageConstPtr& msg){
 }
 
 //Main loop
-void Bar_code_node::loop(){
+void HiwrCodeScannerNodelet::loop(){
     print_info("I'm gonna loop...");
     while(ros::ok()){
-        if(spinningState){
+        if(spinning_state_){
 
             //do we need to subscribe again?
-            if(!isSubscribed){
-                image_sub_ = it_->subscribe(video_stream_name.c_str(), 1,&Bar_code_node::callback_img, this);
-                isSubscribed = true;
+            if(!is_subscribed_){
+                image_sub_ = it_->subscribe(video_stream_name_.c_str(), 1,&HiwrCodeScannerNodelet::callback_img, this);
+                is_subscribed_ = true;
             }
 
-            if(new_data_available){
+            if(new_data_available_){
                 //publish bar code value if a new one is available
-                //NODELET_INFO("PUBLISHING NEW DATA");
-                pub.publish(out_msg);
-                new_data_available = false;
+                pub_.publish(out_msg_);
+                new_data_available_ = false;
             }
             else{
                 usleep(100000);
@@ -133,9 +131,9 @@ void Bar_code_node::loop(){
         }
         else{
             //unsubscribe to video_stream
-            if(isSubscribed){
+            if(is_subscribed_){
                 image_sub_.shutdown();
-                isSubscribed = false;
+                is_subscribed_ = false;
             }
             usleep(100000);
         }
@@ -143,32 +141,32 @@ void Bar_code_node::loop(){
     print_info("I'm done loopping");
 }
 
-void Bar_code_node::configureSpinning(ros::NodeHandle& nh){
+void HiwrCodeScannerNodelet::configureSpinning(ros::NodeHandle& nh){
     print_info("START configuring spinning state");
-    serviceSpinningStateSetter = nh.advertiseService("setSpinningState", &Bar_code_node::service_SetSpinningState, this);
-    serviceSpinningStateGetter = nh.advertiseService("getSpinningState", &Bar_code_node::service_GetSpinningState, this);
+    service_spinning_state_setter_ = nh.advertiseService("setSpinningState", &HiwrCodeScannerNodelet::serviceSetSpinningState, this);
+    service_spinning_state_getter_ = nh.advertiseService("getSpinningState", &HiwrCodeScannerNodelet::serviceGetSpinningState, this);
     print_info("configuring DONE");
 }
 
 
-bool Bar_code_node::service_SetSpinningState( hyve_msg::SetState::Request &req ,hyve_msg::SetState::Response  &res  ){
+bool HiwrCodeScannerNodelet::serviceSetSpinningState( hyve_msg::SetState::Request &req ,hyve_msg::SetState::Response  &res  ){
     res.state = req.state;
-    spinningState = req.state;
+    spinning_state_ = req.state;
     return true;
 }
 
-bool Bar_code_node::service_GetSpinningState( hyve_msg::GetState::Request &req ,hyve_msg::GetState::Response  &res  ){
-    res.state =spinningState;
+bool HiwrCodeScannerNodelet::serviceGetSpinningState( hyve_msg::GetState::Request &req ,hyve_msg::GetState::Response  &res  ){
+    res.state =spinning_state_;
     return true;
 }
 
-void Bar_code_node::print_info(const char * value){
-    NODELET_INFO("%s %s", debug_name.c_str(), value);
+void HiwrCodeScannerNodelet::printInfo(const char * value){
+    NODELET_INFO("%s %s", debug_name_.c_str(), value);
 }
 
-void Bar_code_node::print_error(char * value){
-    NODELET_ERROR("%s %s", debug_name.c_str(), value);
+void HiwrCodeScannerNodelet::printError(char * value){
+    NODELET_ERROR("%s %s", debug_name_.c_str(), value);
 }
 
-PLUGINLIB_DECLARE_CLASS(bar_code_nodelet,Bar_code_node, bar_code_nodelet::Bar_code_node, nodelet::Nodelet);
+PLUGINLIB_DECLARE_CLASS(hiwr_code_scanner,HiwrCodeScannerNodelet, hiwr_code_scanner::HiwrCodeScannerNodelet, nodelet::Nodelet);
 }

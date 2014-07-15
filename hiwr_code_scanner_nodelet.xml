@@ -1,0 +1,7 @@
+<library path="lib/libhiwr_code_scanner">
+  <class name="hiwr_code_scanner/HiwrCodeScannerNodelet" type="hiwr_code_scanner::HiwrCodeScannerNodelet" base_class_type="nodelet::Nodelet">
+    <description>
+      Implementing bar code reader nodelet
+    </description>
+  </class>
+</library>

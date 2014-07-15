@@ -32,43 +32,43 @@
 
 
 
-namespace bar_code_nodelet
+namespace hiwr_code_scanner
 {
 
-class Bar_code_node : public nodelet::Nodelet{
+class HiwrCodeScannerNodelet : public nodelet::Nodelet{
 private:
     //Debug variables & methods
-    std::string debug_name;
+    std::string debug_name_;
     void print_info(const char *value);
     void print_error(char * value);
 
     //Subscriber to UvcCamNodelet
     image_transport::Subscriber image_sub_;
     image_transport::ImageTransport * it_;
-    std::string video_stream_name;
+    std::string video_stream_name_;
 
     //Main loop thread
-    std::thread loop_thread;
+    std::thread loop_thread_;
 
     //Pointer to last image from video stream
-    cv_bridge::CvImagePtr cv_ptr;
+    cv_bridge::CvImagePtr cv_ptr_;
 
     //Spinning state
-    bool spinningState;
+    bool spinning_state_;
 
-    bool new_data_available;
-    bool isSubscribed;
+    bool new_data_available_;
+    bool is_subscribed_;
 
     //Symbol type
-    zbar::zbar_symbol_type_t symbol_type;
+    zbar::zbar_symbol_type_t symbol_type_;
 
     //Services
-    ros::ServiceServer serviceSpinningStateSetter;
-    ros::ServiceServer serviceSpinningStateGetter;
+    ros::ServiceServer service_spinning_state_setter_;
+    ros::ServiceServer service_spinning_state_getter_;
 
     //Publisher
-    ros::Publisher pub;
-    std_msgs::StringPtr  out_msg;
+    ros::Publisher pub_;
+    std_msgs::StringPtr  out_msg_;
 
     //Main loop
     void loop();
@@ -76,13 +76,15 @@ private:
     void callback_img(const sensor_msgs::ImageConstPtr& msg);
 public:
     virtual void onInit();
-    Bar_code_node();
-    bool service_SetSpinningState( hyve_msg::SetState::Request&, hyve_msg::SetState::Response&);
-    bool service_GetSpinningState( hyve_msg::GetState::Request&, hyve_msg::GetState::Response&);
+    HiwrCodeScannerNodelet();
+    bool serviceSetSpinningState( hyve_msg::SetState::Request&, hyve_msg::SetState::Response&);
+    bool serviceGetSpinningState( hyve_msg::GetState::Request&, hyve_msg::GetState::Response&);
     void configureSpinning(ros::NodeHandle&);
+    void printInfo(const char * value);
+    void printError(char * value);
 
 };
 
 
-PLUGINLIB_DECLARE_CLASS(bar_code_nodelet,Bar_code_node, bar_code_nodelet::Bar_code_node, nodelet::Nodelet);
+PLUGINLIB_DECLARE_CLASS(hiwr_code_scanner,HiwrCodeScannerNodelet, hiwr_code_scanner::HiwrCodeScannerNodelet, nodelet::Nodelet);
 }

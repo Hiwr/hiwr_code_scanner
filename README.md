@@ -59,22 +59,22 @@ Node
 
 ### Subscribed Topics
 
-- `/myWebcam/output_video`
+- `/hiwr_camera_controller/output_video`
  	  * The video stream of the camera
 
 
 ### Published Topics
 
-- `output_bar_code`
+- `/hiwr_code_scanner/code`
 	  * Send every detected bar code
 
 
 ### Services
 
-- `/bar_code/setSpinningState` (Bool)
+- `/hiwr_code_scanner/setSpinningState` (Bool)
 	  * Enable or disable detection
 
-- `/bar_code/getSpinningState` (Bool)
+- `/hiwr_code_scanner/getSpinningState` (Bool)
 	  * Get detection state
 
 ### Parameters
