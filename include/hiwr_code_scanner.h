@@ -46,8 +46,8 @@
 #include <thread>
 
 //Service states
-#include <hyve_msg/SetState.h>
-#include <hyve_msg/GetState.h>
+#include <hiwr_msg/SetState.h>
+#include <hiwr_msg/GetState.h>
 
 
 
@@ -96,8 +96,8 @@ private:
 public:
     virtual void onInit();
     HiwrCodeScannerNodelet();
-    bool serviceSetSpinningState( hyve_msg::SetState::Request&, hyve_msg::SetState::Response&);
-    bool serviceGetSpinningState( hyve_msg::GetState::Request&, hyve_msg::GetState::Response&);
+    bool serviceSetSpinningState( hiwr_msg::SetState::Request&, hiwr_msg::SetState::Response&);
+    bool serviceGetSpinningState( hiwr_msg::GetState::Request&, hiwr_msg::GetState::Response&);
     void configureSpinning(ros::NodeHandle&);
     void printInfo(const char * value);
     void printError(char * value);

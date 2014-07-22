@@ -149,13 +149,13 @@ void HiwrCodeScannerNodelet::configureSpinning(ros::NodeHandle& nh){
 }
 
 
-bool HiwrCodeScannerNodelet::serviceSetSpinningState( hyve_msg::SetState::Request &req ,hyve_msg::SetState::Response  &res  ){
+bool HiwrCodeScannerNodelet::serviceSetSpinningState( hiwr_msg::SetState::Request &req ,hiwr_msg::SetState::Response  &res  ){
     res.state = req.state;
     spinning_state_ = req.state;
     return true;
 }
 
-bool HiwrCodeScannerNodelet::serviceGetSpinningState( hyve_msg::GetState::Request &req ,hyve_msg::GetState::Response  &res  ){
+bool HiwrCodeScannerNodelet::serviceGetSpinningState( hiwr_msg::GetState::Request &req ,hiwr_msg::GetState::Response  &res  ){
     res.state =spinning_state_;
     return true;
 }

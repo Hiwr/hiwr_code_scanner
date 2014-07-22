@@ -7,13 +7,13 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
-  hyve_msg
+  hiwr_msg
 )
 
 
 catkin_package(
   LIBRARIES hiwr_code_scanner
- DEPENDS roscpp nodelet #std_msgs hyve_msg#system_lib
+  DEPENDS roscpp nodelet
 )
 
 include_directories(
