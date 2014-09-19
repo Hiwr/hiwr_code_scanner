@@ -49,9 +49,9 @@ Make sure  your project is compiled and sourced.
 
 Launch with an existing video stream topic:
 
-    <node pkg="nodelet" type="nodelet" name="bar_code" args="load bar_code_nodelet/Bar_code_node nodelet_manager">
+    <node pkg="nodelet" type="nodelet" name="bar_code" args="load hiwr_code_scanner/HiwrCodeScannerNodelet nodelet_manager">
         <param name="video_stream" type="str" value="/camStream/output_video" />
-        <rosparam file="$(find hyve_bar_code_nodelet)/param/config_Bar_Code.yaml"/>
+        <rosparam file="$(find hiwr_code_scanner)/param/config_Bar_Code.yaml"/>
     </node>
 
 Node
